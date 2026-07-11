@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#071426" />
+  <title>有件小事想问你</title>
+  <style>
+    :root{
+      --ink:#071426;
+      --ink-2:#102b4c;
+      --red:#ed3042;
+      --pink:#ff6b83;
+      --paper:#fff8ef;
+      --white:#ffffff;
+      --muted:#6f7580;
+      --line:#071426;
+      --shadow:0 20px 60px rgba(7,20,38,.22);
+      --radius:28px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;font-family:Inter,"PingFang SC","Microsoft YaHei",system-ui,-apple-system,sans-serif;background:var(--ink);color:var(--ink);overflow-x:hidden}
+    body{min-height:100svh}
+    button,input{font:inherit}
+    button{cursor:pointer}
+    .app{
+      min-height:100svh;
+      position:relative;
+      display:grid;
+      place-items:center;
+      padding:24px 16px calc(24px + env(safe-area-inset-bottom));
+      overflow:hidden;
+      background:
+        radial-gradient(circle at 15% 10%, rgba(237,48,66,.45), transparent 26%),
+        radial-gradient(circle at 90% 85%, rgba(61,122,191,.32), transparent 28%),
+        linear-gradient(160deg,#071426 0%,#0b1f38 55%,#08111f 100%);
+    }
+    .noise,.halftone,.web-bg{position:absolute;inset:0;pointer-events:none}
+    .noise{opacity:.12;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.45'/%3E%3C/svg%3E")}
+    .halftone{opacity:.12;background-image:radial-gradient(circle,white 1px,transparent 1.6px);background-size:14px 14px;mask-image:linear-gradient(to bottom,black,transparent 42%,transparent 65%,black)}
+    .web-bg{opacity:.22;background-image:url("data:image/svg+xml,%3Csvg width='900' height='900' viewBox='0 0 900 900' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='2'%3E%3Cpath d='M450 450L450 0M450 450L900 120M450 450L900 600M450 450L680 900M450 450L120 900M450 450L0 610M450 450L0 130M450 450L230 0'/%3E%3Cpath d='M450 360C540 360 610 400 650 450C610 520 540 550 450 550C360 550 290 520 250 450C290 400 360 360 450 360Z'/%3E%3Cpath d='M450 270C625 270 750 350 800 450C740 585 620 640 450 640C280 640 160 585 100 450C150 350 275 270 450 270Z'/%3E%3Cpath d='M450 160C720 160 840 290 890 450C830 700 680 800 450 800C220 800 70 700 10 450C60 290 180 160 450 160Z'/%3E%3C/g%3E%3C/svg%3E");background-size:820px;background-position:center;animation:drift 18s linear infinite alternate}
+    @keyframes drift{from{transform:scale(1) rotate(-2deg)}to{transform:scale(1.08) rotate(3deg)}}
+
+    .shell{width:min(100%,460px);position:relative;z-index:2}
+    .topline{display:flex;align-items:center;justify-content:space-between;color:rgba(255,255,255,.78);font-size:12px;letter-spacing:.12em;text-transform:uppercase;margin:0 8px 12px}
+    .progress{display:flex;gap:6px}
+    .progress i{display:block;width:22px;height:4px;border-radius:10px;background:rgba(255,255,255,.2);transition:.35s ease}
+    .progress i.active{background:var(--red);width:38px}
+
+    .card{
+      min-height:620px;
+      background:var(--paper);
+      border:3px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:8px 8px 0 var(--red),var(--shadow);
+      padding:26px 22px 22px;
+      position:relative;
+      overflow:hidden;
+      isolation:isolate;
+    }
+    .card::before{content:"";position:absolute;width:180px;height:180px;border:2px solid rgba(7,20,38,.12);border-radius:50%;right:-90px;top:-90px;box-shadow:0 0 0 28px rgba(7,20,38,.035),0 0 0 56px rgba(7,20,38,.025);z-index:-1}
+    .corner{position:absolute;color:var(--red);font-weight:900;font-size:26px;line-height:1}
+    .c1{top:16px;left:18px}.c2{right:18px;bottom:14px;transform:rotate(180deg)}
+
+    .screen{display:none;min-height:566px;animation:enter .5s cubic-bezier(.2,.75,.2,1)}
+    .screen.active{display:flex;flex-direction:column}
+    @keyframes enter{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:none}}
+
+    .hero-icon{width:88px;height:88px;border:3px solid var(--line);border-radius:24px;margin:10px auto 18px;display:grid;place-items:center;background:var(--red);box-shadow:6px 6px 0 var(--ink);transform:rotate(-3deg);position:relative}
+    .hero-icon svg{width:58px;height:58px}
+    .sticker{position:absolute;right:-12px;bottom:-12px;background:#fff;border:2px solid var(--line);border-radius:999px;padding:7px 10px;font-size:12px;font-weight:900;transform:rotate(7deg)}
+
+    h1,h2,p{margin:0}
+    h1,h2{font-weight:950;letter-spacing:-.035em;line-height:1.04;text-wrap:balance}
+    h1{font-size:clamp(34px,9vw,48px);text-align:center}
+    h2{font-size:clamp(29px,7vw,39px)}
+    .lead{font-size:15px;line-height:1.75;color:#4e5662;text-align:center;margin:14px auto 22px;max-width:320px}
+    .eyebrow{display:inline-flex;align-items:center;gap:7px;border:2px solid var(--line);border-radius:999px;padding:7px 11px;font-size:12px;font-weight:900;background:white;box-shadow:3px 3px 0 var(--pink);margin-bottom:18px;width:max-content}
+    .eyebrow::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--red);box-shadow:0 0 0 4px rgba(237,48,66,.15)}
+
+    .actions{display:grid;gap:11px;margin-top:auto;position:relative}
+    .btn{border:2.5px solid var(--line);border-radius:16px;min-height:55px;padding:13px 16px;font-weight:950;letter-spacing:.01em;transition:.18s ease;box-shadow:4px 4px 0 var(--line);display:flex;align-items:center;justify-content:center;gap:8px}
+    .btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--line)}
+    .btn.primary{background:var(--red);color:white}
+    .btn.secondary{background:white;color:var(--ink)}
+    .btn.soft{background:#f7e7e6;color:var(--ink)}
+    .btn.small{min-height:44px;padding:10px 14px;border-radius:13px;font-size:14px}
+    .micro{text-align:center;color:#777d86;font-size:12px;line-height:1.5;margin-top:12px}
+
+    .movie-card{border:3px solid var(--line);border-radius:22px;background:linear-gradient(145deg,#0b213d,#071426);color:white;min-height:245px;padding:20px;position:relative;overflow:hidden;box-shadow:6px 6px 0 var(--red);margin:18px 0}
+    .movie-card::before{content:"";position:absolute;inset:-30%;background:repeating-conic-gradient(from 20deg,transparent 0 8deg,rgba(255,255,255,.08) 8deg 9deg);animation:spin 28s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .movie-content{position:relative;z-index:1;display:flex;flex-direction:column;height:100%}
+    .movie-kicker{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#ffb5bf;font-weight:900}
+    .movie-title{font-size:31px;line-height:.95;font-weight:1000;text-transform:uppercase;margin-top:16px;max-width:270px;text-shadow:3px 3px 0 rgba(237,48,66,.9)}
+    .movie-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:24px}
+    .chip{border:1.5px solid rgba(255,255,255,.65);background:rgba(255,255,255,.08);border-radius:999px;padding:7px 10px;font-size:11px;font-weight:800;backdrop-filter:blur(8px)}
+
+    .choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0 12px}
+    .dinner-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;margin:20px 0 12px}
+    .choice{border:2.5px solid var(--line);background:white;border-radius:16px;padding:14px 12px;min-height:78px;text-align:left;font-weight:900;box-shadow:3px 3px 0 rgba(7,20,38,.18);transition:.18s}
+    .choice.dinner-item{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:82px;padding:8px 4px;font-size:13px;text-align:center}
+    .choice.dinner-item span{display:block;font-size:24px;margin-bottom:4px}
+    .choice span{display:block;font-size:23px;margin-bottom:7px}
+    .choice small{display:block;color:#6a7079;font-weight:700;margin-top:4px}
+    .choice.selected{background:#ffd8dd;box-shadow:4px 4px 0 var(--red);transform:translateY(-2px)}
+    .choice.wide{grid-column:1/-1}
+
+    .field{display:grid;gap:8px;margin:15px 0}
+    .field label{font-weight:950;font-size:13px}
+    input[type="date"],input[type="time"],input[type="text"]{width:100%;border:2.5px solid var(--line);border-radius:15px;background:white;padding:14px 15px;min-height:52px;outline:none;box-shadow:3px 3px 0 rgba(7,20,38,.12)}
+    input:focus{box-shadow:4px 4px 0 var(--pink)}
+
+    .ticket{border:3px solid var(--line);border-radius:22px;background:white;overflow:hidden;box-shadow:7px 7px 0 var(--red);margin:18px 0;position:relative}
+    .ticket-head{background:var(--ink);color:white;padding:17px 18px;display:flex;align-items:center;justify-content:space-between}
+    .ticket-head strong{font-size:17px}.ticket-head span{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#ff9cac}
+    .ticket-body{padding:18px;display:grid;grid-template-columns:1fr 1fr;gap:15px}
+    .ticket-item{border-left:4px solid var(--red);padding-left:10px;min-width:0}
+    .ticket-item small{display:block;color:#757b84;font-size:10px;text-transform:uppercase;letter-spacing:.1em;font-weight:900;margin-bottom:4px}
+    .ticket-item b{display:block;font-size:14px;word-break:break-word}
+    .ticket-note{padding:0 18px 18px;color:#565d67;font-size:12px;line-height:1.65}
+    .perforation{height:1px;border-top:2px dashed #c8c9cb;position:relative}
+    .perforation::before,.perforation::after{content:"";width:24px;height:24px;background:var(--paper);border:2px solid var(--line);border-radius:50%;position:absolute;top:50%;transform:translateY(-50%)}
+    .perforation::before{left:-15px}.perforation::after{right:-15px}
+
+    .toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);background:#071426;color:white;padding:12px 15px;border-radius:14px;border:2px solid white;font-weight:800;font-size:13px;opacity:0;pointer-events:none;transition:.3s;z-index:20;white-space:nowrap}
+    .toast.show{opacity:1;transform:translate(-50%,0)}
+
+    .float-heart{position:fixed;pointer-events:none;z-index:30;animation:floatUp 1.8s ease-out forwards;font-size:18px}
+    @keyframes floatUp{0%{opacity:0;transform:translateY(0) scale(.7) rotate(0)}15%{opacity:1}100%{opacity:0;transform:translateY(-160px) scale(1.4) rotate(25deg)}}
+
+    .legal{color:rgba(255,255,255,.6);font-size:10px;text-align:center;line-height:1.5;margin:14px 20px 0}
+    @media (max-height:720px){.card{min-height:570px}.screen{min-height:516px}.movie-card{min-height:210px}.hero-icon{width:74px;height:74px;margin-bottom:14px}.hero-icon svg{width:48px;height:48px}}
+    @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;scroll-behavior:auto!important;transition:none!important}}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <div class="noise"></div><div class="halftone"></div><div class="web-bg"></div>
+    <div class="shell">
+      <div class="topline"><span id="miniTitle">A tiny invitation</span><div class="progress" id="progress"></div></div>
+      <section class="card" aria-live="polite">
+        <span class="corner c1">✦</span><span class="corner c2">✦</span>
+
+        <div class="screen active" data-step="0">
+          <div class="hero-icon" aria-hidden="true">
+            <img src="images/logo.jpg" alt="Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 20px; display: block;" />
+            <span class="sticker">认真版</span>
+          </div>
+          <h1>嗨，<span data-bind="herName">你</span><br>有件小事想问你</h1>
+          <p class="lead">我琢磨了很久，觉得直接发一句“看电影吗”有点太普通，所以偷偷做了这个页面。</p>
+          <div class="actions">
+            <button class="btn primary" data-next>继续看看 <span>→</span></button>
+          </div>
+        </div>
+
+        <div class="screen" data-step="1">
+          <span class="eyebrow">MISSION 01 · MOVIE</span>
+          <h2>愿不愿意再和我去看一场电影？</h2>
+          <div class="movie-card">
+            <div class="movie-content">
+              <span class="movie-kicker">This summer · In cinemas</span>
+              <div class="movie-title">SPIDER-MAN<br>BRAND NEW DAY</div>
+              <div class="movie-meta"><span class="chip">蜘蛛侠：崭新之日</span><span class="chip">2026.07.31</span><span class="chip">电影约会</span></div>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn primary" id="acceptBtn">好呀，一起去 🕸️</button>
+            <button class="btn secondary" id="maybeBtn">不行我不要</button>
+          </div>
+          <p class="micro">不用有压力，时间不合适也可以直接告诉我。</p>
+        </div>
+
+        <div class="screen" data-step="2">
+          <span class="eyebrow">MISSION 02 · DATE</span>
+          <h2>那我们挑个时间？</h2>
+          <p class="lead" style="text-align:left;margin-left:0">先选一个大概日期和时间，之后再一起看影院排片。</p>
+          <div class="choice-grid" id="dateChoices"></div>
+          <div class="field"><label for="customDate">或者自选日期</label><input id="customDate" type="date" /></div>
+          <div class="choice-grid" id="timeChoices"></div>
+          <div class="field"><label for="customTime">自选时间</label><input id="customTime" type="time" /></div>
+          <div class="actions"><button class="btn primary" data-next id="dateNext">下一步</button><button class="btn soft small" data-back>返回</button></div>
+        </div>
+
+        <div class="screen" data-step="3">
+          <span class="eyebrow">MISSION 03 · SNACK</span>
+          <h2>看电影当然要带点好吃的</h2>
+          <p class="lead" style="text-align:left;margin-left:0">选一个你比较想吃的，我负责记住。</p>
+          <div class="choice-grid" id="snackChoices"></div>
+          <div class="field"><label for="note">还有什么小要求？</label><input id="note" type="text" maxlength="50" placeholder="比如：不要太晚、想坐后排……" /></div>
+          <div class="actions"><button class="btn primary" data-next id="snackNext">下一步 <span>→</span></button><button class="btn soft small" data-back>返回</button></div>
+        </div>
+
+        <div class="screen" data-step="4">
+          <span class="eyebrow">MISSION 04 · DINNER</span>
+          <h2>看完电影后我们去吃什么？🍽️✨</h2>
+          <p class="lead" style="text-align:left;margin-left:0">挑一个今天的约会氛围。</p>
+          <div class="dinner-grid" id="dinnerChoices"></div>
+          <div class="field" id="customDinnerField" style="display: none;"><label for="customDinner">你想吃什么？✍️</label><input id="customDinner" type="text" placeholder="输入你想吃的美食..." /></div>
+          <div class="actions"><button class="btn primary" data-next id="dinnerNext">生成我们的电影票</button><button class="btn soft small" data-back>返回</button></div>
+        </div>
+
+        <div class="screen" data-step="5">
+          <span class="eyebrow">MISSION COMPLETE</span>
+          <h2>好，那我就认真准备啦</h2>
+          <div class="ticket">
+            <div class="ticket-head"><strong>ONE MOVIE DATE</strong><span>ADMIT TWO</span></div>
+            <div class="ticket-body">
+              <div class="ticket-item" style="grid-column: span 2;"><small>Movie</small><b>蜘蛛侠：崭新之日</b></div>
+              <div class="ticket-item"><small>With</small><b><span data-bind="herName">你</span> × <span data-bind="yourName">我</span></b></div>
+              <div class="ticket-item"><small>City</small><b data-bind="city">一起决定</b></div>
+              <div class="ticket-item"><small>Date</small><b id="resultDate">待定</b></div>
+              <div class="ticket-item"><small>Time</small><b id="resultTime">待定</b></div>
+              <div class="ticket-item"><small>Snack</small><b id="resultSnack">待定</b></div>
+              <div class="ticket-item"><small>Dinner</small><b id="resultDinner">待定</b></div>
+            </div>
+            <div class="perforation"></div>
+            <div class="ticket-note" id="resultNote">影院和场次等排片出来后，我们再一起选。无论答案是什么，谢谢你认真看完。</div>
+          </div>
+          <div class="actions">
+            <button class="btn primary" id="shareBtn">把答案发给我 💌</button>
+            <button class="btn secondary" id="restartBtn">再看一遍</button>
+          </div>
+          <p class="micro">点击后会优先调用手机分享；不支持时会自动复制文字。</p>
+        </div>
+      </section>
+      <p class="legal">非官方影迷邀约页面 · 未使用电影官方视觉素材</p>
+    </div>
+    <div class="toast" id="toast">已复制</div>
+  </main>
+
+<script>
+  // 只改这里，就能快速定制整页。
+  const CONFIG = {
+    herName: "求其",
+    yourName: "你的名字",
+    city: "一起决定",
+    movie: "蜘蛛侠：崭新之日",
+    releaseDate: "2026-07-31",
+    suggestedDates: ["2026-08-01", "2026-08-02", "2026-08-08"],
+    suggestedTimes: ["14:00", "17:00", "19:30", "21:00"],
+    snacks: [
+      { emoji:"🍿", label:"爆米花" },
+      { emoji:"🥤", label:"可乐" },
+      { emoji:"🍟", label:"薯条" },
+      { emoji:"🍦", label:"冰淇淋" },
+      { emoji:"🧃", label:"果汁" },
+      { emoji:"🧋", label:"奶茶" },
+      { emoji:"🫶", label:"你决定" }
+    ],
+    dinners: [
+      { emoji:"🍕", label:"披萨" },
+      { emoji:"🍣", label:"寿司" },
+      { emoji:"🍲", label:"火锅" },
+      { emoji:"🥩", label:"烤肉" },
+      { emoji:"🥟", label:"早茶" },
+      { emoji:"🍜", label:"拉面" },
+      { emoji:"🌶️", label:"麻辣烫" },
+      { emoji:"🦞", label:"小龙虾" },
+      { emoji:"🍢", label:"烧烤" },
+      { emoji:"✍️", label:"其他" }
+    ],
+    // 可选：填入你自己的 Formspree / Serverless API 地址，就能自动收集她的选择。
+    // 留空时不会上传任何数据，只通过系统分享或复制文字。
+    webhookUrl: ""
+  };
+
+  const state = { step:0, date:"", time:"", snack:"", dinner:"", note:"", intent:"yes" };
+  const screens = [...document.querySelectorAll('.screen')];
+  const progress = document.getElementById('progress');
+  const query = new URLSearchParams(location.search);
+  CONFIG.herName = query.get('to') || CONFIG.herName;
+  CONFIG.yourName = query.get('from') || CONFIG.yourName;
+  CONFIG.city = query.get('city') || CONFIG.city;
+
+  document.querySelectorAll('[data-bind]').forEach(el => el.textContent = CONFIG[el.dataset.bind]);
+  document.title = `${CONFIG.herName}，有件小事想问你`;
+
+  function buildProgress(){
+    progress.innerHTML = screens.map((_,i)=>`<i class="${i===state.step?'active':''}"></i>`).join('');
+  }
+  let hasMoved = false;
+  let placeholder = null;
+  const maybeBtn = document.getElementById('maybeBtn');
+
+  function resetMaybeButton() {
+    if (hasMoved && placeholder) {
+      placeholder.parentNode.insertBefore(maybeBtn, placeholder);
+      placeholder.remove();
+      placeholder = null;
+      maybeBtn.style.position = '';
+      maybeBtn.style.left = '';
+      maybeBtn.style.top = '';
+      maybeBtn.style.width = '';
+      maybeBtn.style.height = '';
+      maybeBtn.style.zIndex = '';
+      maybeBtn.style.margin = '';
+      maybeBtn.style.transform = '';
+      hasMoved = false;
+    }
+  }
+
+  function go(step){
+    state.step = Math.max(0,Math.min(step,screens.length-1));
+    if (state.step === 1) {
+      resetMaybeButton();
+    }
+    screens.forEach((s,i)=>s.classList.toggle('active',i===state.step));
+    buildProgress();
+    if(state.step===5){ renderTicket(); burst(); submitOptional(); }
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  document.querySelectorAll('[data-next]').forEach(b=>b.addEventListener('click',()=>go(state.step+1)));
+  document.querySelectorAll('[data-back]').forEach(b=>b.addEventListener('click',()=>go(state.step-1)));
+
+  document.getElementById('acceptBtn').addEventListener('click',()=>{state.intent='yes';go(2)});
+  
+  function handleDodge(e) {
+    if (!hasMoved) {
+      hasMoved = true;
+      placeholder = document.createElement('div');
+      placeholder.style.width = `${maybeBtn.offsetWidth}px`;
+      placeholder.style.height = `${maybeBtn.offsetHeight}px`;
+      placeholder.style.visibility = 'hidden';
+      placeholder.style.pointerEvents = 'none';
+      maybeBtn.parentNode.insertBefore(placeholder, maybeBtn);
+      
+      const screen = maybeBtn.closest('.screen');
+      screen.appendChild(maybeBtn);
+      maybeBtn.style.position = 'absolute';
+      maybeBtn.style.zIndex = '100';
+      maybeBtn.style.margin = '0';
+    }
+    
+    const card = maybeBtn.closest('.card');
+    const cardRect = card.getBoundingClientRect();
+    const btnRect = maybeBtn.getBoundingClientRect();
+    
+    let clientX, clientY;
+    if (e.touches && e.touches.length > 0) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else {
+      clientX = e.clientX;
+      clientY = e.clientY;
+    }
+    
+    const cursorX = clientX - cardRect.left;
+    const cursorY = clientY - cardRect.top;
+    
+    let newLeft, newTop;
+    let attempts = 0;
+    const padding = 20;
+    let distance = 0;
+    
+    do {
+      newLeft = Math.random() * (cardRect.width - btnRect.width - padding * 2) + padding;
+      newTop = Math.random() * (cardRect.height - btnRect.height - padding * 2) + padding;
+      attempts++;
+      
+      const btnCenterX = newLeft + btnRect.width / 2;
+      const btnCenterY = newTop + btnRect.height / 2;
+      distance = Math.hypot(btnCenterX - cursorX, btnCenterY - cursorY);
+    } while (attempts < 30 && distance < 120);
+    
+    maybeBtn.style.left = `${newLeft}px`;
+    maybeBtn.style.top = `${newTop}px`;
+    
+    const randomRotate = (Math.random() - 0.5) * 15;
+    maybeBtn.style.transform = `rotate(${randomRotate}deg) scale(1.05)`;
+  }
+
+  maybeBtn.addEventListener('mouseenter', handleDodge);
+  maybeBtn.addEventListener('mouseover', handleDodge);
+  maybeBtn.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    handleDodge(e);
+  });
+  maybeBtn.addEventListener('focus', (e) => {
+    maybeBtn.blur();
+  });
+  maybeBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  });
+
+  const fmtDate = v => {
+    if(!v) return '待定';
+    const d = new Date(v+'T12:00:00');
+    return new Intl.DateTimeFormat('zh-CN',{month:'long',day:'numeric',weekday:'short'}).format(d);
+  };
+
+  function createChoices(containerId,items,type,renderer){
+    const box=document.getElementById(containerId);
+    box.innerHTML=items.map(item=>`<button class="choice ${type==='dinner'?'dinner-item':''}" data-value="${typeof item==='string'?item:item.label}">${renderer(item)}</button>`).join('');
+    box.addEventListener('click',e=>{
+      const btn=e.target.closest('.choice'); if(!btn)return;
+      box.querySelectorAll('.choice').forEach(x=>x.classList.remove('selected'));
+      btn.classList.add('selected'); state[type]=btn.dataset.value;
+      if(type==='date') document.getElementById('customDate').value='';
+      if(type==='time') document.getElementById('customTime').value='';
+      if(type==='dinner') {
+        if(btn.dataset.value === '其他') {
+          document.getElementById('customDinnerField').style.display = 'grid';
+          state.dinner = document.getElementById('customDinner').value.trim() || '其他';
+        } else {
+          document.getElementById('customDinnerField').style.display = 'none';
+          document.getElementById('customDinner').value = '';
+        }
+      }
+    });
+  }
+  createChoices('dateChoices',CONFIG.suggestedDates,'date',d=>`<span>📅</span>${fmtDate(d)}`);
+  createChoices('timeChoices',CONFIG.suggestedTimes,'time',t=>`<span>🕒</span>${t}`);
+  createChoices('snackChoices',CONFIG.snacks,'snack',s=>`<span>${s.emoji}</span>${s.label}`);
+  createChoices('dinnerChoices',CONFIG.dinners,'dinner',d=>`<span>${d.emoji}</span>${d.label}`);
+
+  document.getElementById('customDate').addEventListener('change',e=>{
+    state.date=e.target.value;document.querySelectorAll('#dateChoices .choice').forEach(x=>x.classList.remove('selected'));
+  });
+  document.getElementById('customTime').addEventListener('change',e=>{
+    state.time=e.target.value;document.querySelectorAll('#timeChoices .choice').forEach(x=>x.classList.remove('selected'));
+  });
+  document.getElementById('customDinner').addEventListener('input',e=>{
+    state.dinner = e.target.value.trim() || '其他';
+  });
+  document.getElementById('note').addEventListener('input',e=>state.note=e.target.value.trim());
+
+  function renderTicket(){
+    const selectedSnackObj = CONFIG.snacks.find(s => s.label === state.snack);
+    const snackDisplay = selectedSnackObj ? `${selectedSnackObj.emoji} ${selectedSnackObj.label}` : (state.snack || '你决定');
+    
+    const selectedDinnerObj = CONFIG.dinners.find(d => d.label === state.dinner);
+    const dinnerDisplay = selectedDinnerObj 
+      ? (selectedDinnerObj.label === '其他' ? (document.getElementById('customDinner').value.trim() ? `✍️ ${document.getElementById('customDinner').value.trim()}` : '其他') : `${selectedDinnerObj.emoji} ${selectedDinnerObj.label}`)
+      : (state.dinner ? `✍️ ${state.dinner}` : '待定');
+
+    document.getElementById('resultDate').textContent=fmtDate(state.date);
+    document.getElementById('resultTime').textContent=state.time||'待定';
+    document.getElementById('resultSnack').textContent=snackDisplay;
+    document.getElementById('resultDinner').textContent=dinnerDisplay;
+    document.getElementById('resultNote').textContent=state.note
+      ? `备注：${state.note}。影院和场次等排片出来后，我们再一起选。`
+      : '影院和场次等排片出来后，我们再一起选。无论答案是什么，谢谢你认真看完。';
+  }
+
+  function resultText(){
+    const selectedSnackObj = CONFIG.snacks.find(s => s.label === state.snack);
+    const snackDisplay = selectedSnackObj ? `${selectedSnackObj.emoji} ${selectedSnackObj.label}` : (state.snack || '你决定');
+    
+    const selectedDinnerObj = CONFIG.dinners.find(d => d.label === state.dinner);
+    const dinnerDisplay = selectedDinnerObj 
+      ? (selectedDinnerObj.label === '其他' ? (document.getElementById('customDinner').value.trim() ? `✍️ ${document.getElementById('customDinner').value.trim()}` : '其他') : `${selectedDinnerObj.emoji} ${selectedDinnerObj.label}`)
+      : (state.dinner ? `✍️ ${state.dinner}` : '待定');
+
+    return `🎬 ${CONFIG.yourName}，我的电影邀约答案：\n`+
+      `电影：${CONFIG.movie}\n`+
+      `日期：${fmtDate(state.date)}\n`+
+      `时间：${state.time||'待定'}\n`+
+      `零食：${snackDisplay}\n`+
+      `晚餐：${dinnerDisplay}\n`+
+      `备注：${state.note||'没有啦'}\n\n`+
+      `${state.intent==='maybe'?'我还需要再确认一下时间～':'可以一起去呀 🕸️'}`;
+  }
+
+  async function submitOptional(){
+    if(!CONFIG.webhookUrl) return;
+    try{
+      await fetch(CONFIG.webhookUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+        ...state,herName:CONFIG.herName,yourName:CONFIG.yourName,movie:CONFIG.movie,submittedAt:new Date().toISOString()
+      })});
+    }catch(err){ console.warn('Webhook submission failed',err); }
+  }
+
+  async function copyText(){
+    await navigator.clipboard.writeText(resultText());
+    toast('答案已复制，粘贴发给我就好');
+  }
+  document.getElementById('shareBtn').addEventListener('click',async()=>{
+    try{
+      if(navigator.share){await navigator.share({title:'电影邀约答案',text:resultText(),url:location.href});}
+      else await copyText();
+    }catch(err){ if(err.name!=='AbortError') await copyText(); }
+  });
+  document.getElementById('restartBtn').addEventListener('click',()=>go(0));
+
+  function toast(text){const t=document.getElementById('toast');t.textContent=text;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
+  function burst(){
+    const icons=['❤','✦','🕸️'];
+    for(let i=0;i<18;i++) setTimeout(()=>{
+      const el=document.createElement('span');el.className='float-heart';el.textContent=icons[Math.floor(Math.random()*icons.length)];
+      el.style.left=(15+Math.random()*70)+'vw';el.style.top=(65+Math.random()*20)+'vh';el.style.animationDelay=(Math.random()*.2)+'s';document.body.appendChild(el);setTimeout(()=>el.remove(),2200);
+    },i*55);
+  }
+  buildProgress();
+</script>
+</body>
+</html>

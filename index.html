@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>可以和我一起约会嘛？！🌸</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- 手机外壳容器 -->
+  <div class="phone-frame">
+    
+    <!-- 背景小装饰物 -->
+    <div class="decorations">
+      <span class="decor-item">🌸</span>
+      <span class="decor-item">🌸</span>
+      <span class="decor-item">🌸</span>
+      <span class="decor-item">🌸</span>
+      <span class="decor-item">🌸</span>
+    </div>
+
+    <!-- 弹窗通知 -->
+    <div class="toast" id="toast-msg">已复制！发送给男朋友吧 💖</div>
+
+    <!-- 卡片容器 -->
+    <div class="card-container">
+      
+      <!-- 步骤一：约会邀请 -->
+      <div class="card active" id="card-1">
+        <div class="img-container">
+          <img src="images/cute_bulldog.png" alt="可爱法斗犬">
+        </div>
+        <h2>可以和我一起<br>约会嘛？！🌸</h2>
+        <p class="subtitle">系统检测到：对方已经紧张到开始写网页了。</p>
+        <div class="btn-container">
+          <button class="btn btn-pink" id="btn-yes-1">愿意 ❤️</button>
+          
+          <!-- 占位符按钮，用来支撑布局不塌陷 -->
+          <button class="btn btn-white btn-placeholder">不要 💡</button>
+          <!-- 真正的“不要”按钮，绝对定位悬浮在占位符上 -->
+          <button class="btn btn-white" id="btn-no-1">不要 💡</button>
+        </div>
+      </div>
+
+      <!-- 步骤二：确认愿意 -->
+      <div class="card" id="card-2">
+        <div class="img-container">
+          <img src="images/peanut_icon.png" alt="花生">
+        </div>
+        <h2>等下，你真的点了愿意？？😢</h2>
+        <p class="subtitle">我都已经准备好被你点“不要”了。</p>
+        <div class="btn-container">
+          <button class="btn btn-pink" id="btn-ok-2" style="width: 100%; max-width: 200px;">好啦好啦 →</button>
+        </div>
+      </div>
+
+      <!-- 步骤三：选择时间 -->
+      <div class="card" id="card-3">
+        <div class="img-container">
+          <img src="images/calendar_icon.png" alt="日历">
+        </div>
+        <h2>所以...你什么时候有空？😊</h2>
+        
+        <div class="form-container">
+          <div class="form-group">
+            <label for="date-input">选一天 📅</label>
+            <input type="date" id="date-input" class="input-style" required>
+          </div>
+          <div class="form-group">
+            <label for="time-input">几点见？⏰</label>
+            <select id="time-input" class="input-style" required>
+              <option value="" disabled selected>选择时间...</option>
+              <option value="12:00">中午 12:00</option>
+              <option value="15:00">下午 15:00</option>
+              <option value="17:00">傍晚 17:00</option>
+              <option value="18:30">晚餐 18:30</option>
+              <option value="20:00">晚上 20:00</option>
+              <option value="custom">自定义时间...</option>
+            </select>
+          </div>
+          
+          <!-- 自定义时间输入框，默认隐藏 -->
+          <div class="form-group" id="custom-time-group" style="display: none;">
+            <label for="custom-time-input">输入具体时间 ✍️</label>
+            <input type="text" id="custom-time-input" class="input-style" placeholder="例如：19:15">
+          </div>
+        </div>
+
+        <div class="btn-container">
+          <button class="btn btn-pink" id="btn-submit-3" style="width: 100%; max-width: 200px;">确定时间 ❤️</button>
+        </div>
+      </div>
+
+      <!-- 步骤四：吃什么 -->
+      <div class="card" id="card-4">
+        <h2>我们吃点什么？🍽️✨</h2>
+        <p class="subtitle">挑一个今天的约会氛围。</p>
+        
+        <div class="food-grid">
+          <div class="food-item" data-food="披萨">
+            <span class="emoji">🍕</span>
+            <span class="name">披萨</span>
+          </div>
+          <div class="food-item" data-food="寿司">
+            <span class="emoji">🍣</span>
+            <span class="name">寿司</span>
+          </div>
+          <div class="food-item" data-food="火锅">
+            <span class="emoji">🍲</span>
+            <span class="name">火锅</span>
+          </div>
+          <div class="food-item" data-food="烤肉">
+            <span class="emoji">🥩</span>
+            <span class="name">烤肉</span>
+          </div>
+          <div class="food-item" data-food="早茶">
+            <span class="emoji">🥟</span>
+            <span class="name">早茶</span>
+          </div>
+          <div class="food-item" data-food="拉面">
+            <span class="emoji">🍜</span>
+            <span class="name">拉面</span>
+          </div>
+          <div class="food-item" data-food="麻辣烫">
+            <span class="emoji">🌶️</span>
+            <span class="name">麻辣烫</span>
+          </div>
+          <div class="food-item" data-food="小龙虾">
+            <span class="emoji">🦞</span>
+            <span class="name">小龙虾</span>
+          </div>
+          <div class="food-item" data-food="烧烤">
+            <span class="emoji">🍢</span>
+            <span class="name">烧烤</span>
+          </div>
+          <div class="food-item" data-food="other">
+            <span class="emoji">✍️</span>
+            <span class="name">其他</span>
+          </div>
+        </div>
+
+        <!-- 自定义食物输入框，默认隐藏 -->
+        <div class="other-input-container" id="other-food-container">
+          <input type="text" id="other-food-input" class="input-style" placeholder="你想吃什么呢？">
+        </div>
+
+        <div class="btn-container">
+          <button class="btn btn-pink" id="btn-submit-4" style="width: 100%; max-width: 200px;">确定美食 ❤️</button>
+        </div>
+      </div>
+
+      <!-- 步骤五：完成并确认 -->
+      <div class="card" id="card-5">
+        <div class="img-container">
+          <img src="images/cute_bulldog.png" alt="可爱法斗犬">
+        </div>
+        <h2 style="font-size: 22px;">真开心你没有拒绝～<br>我会准时来接你！</h2>
+        <p class="subtitle" id="summary-text" style="font-size: 13.5px; margin-bottom: 20px;">7月12日 17:00，我们去吃火锅。带好胃口，我带好路线。</p>
+        
+        <!-- 结果汇总卡片 -->
+        <div class="result-box">
+          <div class="result-item">
+            <span class="label">Date</span>
+            <span class="val" id="result-date">--月--日</span>
+          </div>
+          <div class="result-item">
+            <span class="label">Time</span>
+            <span class="val" id="result-time">--:--</span>
+          </div>
+          <div class="result-item">
+            <span class="label">Menu</span>
+            <span class="val" id="result-food">---</span>
+          </div>
+        </div>
+
+        <!-- 爱心群 -->
+        <div class="hearts-row">
+          <span class="heart-icon">❤️</span>
+          <span class="heart-icon">❤️</span>
+          <span class="heart-icon">❤️</span>
+          <span class="heart-icon">❤️</span>
+          <span class="heart-icon">❤️</span>
+        </div>
+
+        <div class="btn-container">
+          <button class="btn btn-pink" id="btn-copy" style="width: 100%;">复制约会详情发给他 💌</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
