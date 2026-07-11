@@ -428,22 +428,45 @@
     return new Intl.DateTimeFormat('zh-CN',{month:'long',day:'numeric',weekday:'short'}).format(d);
   };
 
+  const formatMultiSelect = (valuesString, itemsList, defaultValue) => {
+    if (!valuesString) return defaultValue;
+    return valuesString.split(', ').map(val => {
+      const item = itemsList.find(x => x.label === val);
+      return item ? `${item.emoji} ${item.label}` : val;
+    }).join(', ');
+  };
+
   function createChoices(containerId,items,type,renderer){
     const box=document.getElementById(containerId);
     box.innerHTML=items.map(item=>`<button class="choice ${type==='dinner'?'dinner-item':''}" data-value="${typeof item==='string'?item:item.label}">${renderer(item)}</button>`).join('');
     box.addEventListener('click',e=>{
       const btn=e.target.closest('.choice'); if(!btn)return;
-      box.querySelectorAll('.choice').forEach(x=>x.classList.remove('selected'));
-      btn.classList.add('selected'); state[type]=btn.dataset.value;
-      if(type==='date') document.getElementById('customDate').value='';
-      if(type==='time') document.getElementById('customTime').value='';
-      if(type==='dinner') {
-        if(btn.dataset.value === '其他') {
-          document.getElementById('customDinnerField').style.display = 'grid';
-          state.dinner = document.getElementById('customDinner').value.trim() || '其他';
+      
+      if (type === 'snack') {
+        const isYouDecide = btn.dataset.value === '你决定';
+        if (isYouDecide) {
+          box.querySelectorAll('.choice').forEach(x => x.classList.remove('selected'));
+          btn.classList.add('selected');
         } else {
-          document.getElementById('customDinnerField').style.display = 'none';
-          document.getElementById('customDinner').value = '';
+          const youDecideBtn = Array.from(box.querySelectorAll('.choice')).find(x => x.dataset.value === '你决定');
+          if (youDecideBtn) youDecideBtn.classList.remove('selected');
+          btn.classList.toggle('selected');
+        }
+        const selectedValues = Array.from(box.querySelectorAll('.choice.selected')).map(x => x.dataset.value);
+        state.snack = selectedValues.join(', ');
+      } else {
+        box.querySelectorAll('.choice').forEach(x=>x.classList.remove('selected'));
+        btn.classList.add('selected'); state[type]=btn.dataset.value;
+        if(type==='date') document.getElementById('customDate').value='';
+        if(type==='time') document.getElementById('customTime').value='';
+        if(type==='dinner') {
+          if(btn.dataset.value === '其他') {
+            document.getElementById('customDinnerField').style.display = 'grid';
+            state.dinner = document.getElementById('customDinner').value.trim() || '其他';
+          } else {
+            document.getElementById('customDinnerField').style.display = 'none';
+            document.getElementById('customDinner').value = '';
+          }
         }
       }
     });
@@ -465,8 +488,7 @@
   document.getElementById('note').addEventListener('input',e=>state.note=e.target.value.trim());
 
   function renderTicket(){
-    const selectedSnackObj = CONFIG.snacks.find(s => s.label === state.snack);
-    const snackDisplay = selectedSnackObj ? `${selectedSnackObj.emoji} ${selectedSnackObj.label}` : (state.snack || '你决定');
+    const snackDisplay = formatMultiSelect(state.snack, CONFIG.snacks, '你决定');
     
     const selectedDinnerObj = CONFIG.dinners.find(d => d.label === state.dinner);
     const dinnerDisplay = selectedDinnerObj 
@@ -483,8 +505,7 @@
   }
 
   function resultText(){
-    const selectedSnackObj = CONFIG.snacks.find(s => s.label === state.snack);
-    const snackDisplay = selectedSnackObj ? `${selectedSnackObj.emoji} ${selectedSnackObj.label}` : (state.snack || '你决定');
+    const snackDisplay = formatMultiSelect(state.snack, CONFIG.snacks, '你决定');
     
     const selectedDinnerObj = CONFIG.dinners.find(d => d.label === state.dinner);
     const dinnerDisplay = selectedDinnerObj 
