@@ -133,6 +133,34 @@
     .legal{color:rgba(255,255,255,.6);font-size:10px;text-align:center;line-height:1.5;margin:14px 20px 0}
     @media (max-height:720px){.card{min-height:570px}.screen{min-height:516px}.movie-card{min-height:210px}.hero-icon{width:74px;height:74px;margin-bottom:14px}.hero-icon svg{width:48px;height:48px}}
     @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;scroll-behavior:auto!important;transition:none!important}}
+    .wechat-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(7, 20, 38, 0.94);
+      z-index: 9999;
+      color: white;
+      text-align: right;
+      padding: 24px 24px;
+    }
+    .wechat-arrow {
+      font-size: 45px;
+      margin-bottom: 8px;
+      display: inline-block;
+      animation: bounce-arrow 0.8s infinite alternate ease-in-out;
+    }
+    @keyframes bounce-arrow {
+      from { transform: translateY(0); }
+      to { transform: translateY(-12px); }
+    }
+    .wechat-text {
+      font-size: 19px;
+      font-weight: 900;
+      line-height: 1.7;
+      text-align: right;
+      margin-bottom: 30px;
+      letter-spacing: 0.05em;
+    }
   </style>
 </head>
 <body>
@@ -228,13 +256,22 @@
       <p class="legal">非官方影迷邀约页面 · 未使用电影官方视觉素材</p>
     </div>
     <div class="toast" id="toast">已复制</div>
+    <div id="wechatOverlay" class="wechat-overlay">
+      <span class="wechat-arrow">👆</span>
+      <div class="wechat-text">
+        请点击右上角菜单 <br>
+        选择 <b>“发送给朋友”</b> <br>
+        即可直接分享给小彻啦！💌
+      </div>
+      <button class="btn secondary small" id="closeOverlayBtn" style="margin-left: auto; width: 120px;">我知道了</button>
+    </div>
   </main>
 
 <script>
   // 只改这里，就能快速定制整页。
   const CONFIG = {
     herName: "求其",
-    yourName: "你的名字",
+    yourName: "小彻",
     city: "一起决定",
     movie: "蜘蛛侠：崭新之日",
     releaseDate: "2026-07-31",
@@ -473,15 +510,24 @@
     }catch(err){ console.warn('Webhook submission failed',err); }
   }
 
+  const isWeChat = /MicroMessenger/i.test(navigator.userAgent);
+
   async function copyText(){
     await navigator.clipboard.writeText(resultText());
-    toast('答案已复制，粘贴发给我就好');
+    toast('答案已复制！快去微信发给小彻吧 💌');
   }
   document.getElementById('shareBtn').addEventListener('click',async()=>{
-    try{
-      if(navigator.share){await navigator.share({title:'电影邀约答案',text:resultText(),url:location.href});}
-      else await copyText();
-    }catch(err){ if(err.name!=='AbortError') await copyText(); }
+    if (isWeChat) {
+      document.getElementById('wechatOverlay').style.display = 'block';
+    } else {
+      try{
+        if(navigator.share){await navigator.share({title:'电影邀约答案',text:resultText(),url:location.href});}
+        else await copyText();
+      }catch(err){ if(err.name!=='AbortError') await copyText(); }
+    }
+  });
+  document.getElementById('closeOverlayBtn').addEventListener('click', () => {
+    document.getElementById('wechatOverlay').style.display = 'none';
   });
   document.getElementById('restartBtn').addEventListener('click',()=>go(0));
 
